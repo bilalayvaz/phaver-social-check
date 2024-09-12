@@ -13,5 +13,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  return <div>GM user data example.</div>;
+  return <div>Hey this is a frame by bilalayvazoglu.</div>;
 }
