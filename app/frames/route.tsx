@@ -1,5 +1,20 @@
 import { farcasterHubContext } from "frames.js/middleware";
 import { createFrames, Button } from "frames.js/next";
+import { cyber } from '../cyber';
+import { supergraf } from '../super';
+
+
+
+function findMultiplierByUsername(username: string): string | null {
+  const user = cyber.find((user) => user.username === username);
+  return user ? user.multiplier : null;
+}
+
+
+function findSuperByUsername(username: string): string | null {
+  const user = supergraf.find((user) => user.username === username);
+  return user ? user.bonus : null;
+}
 
 const frames = createFrames({
   basePath: '/frames',
@@ -18,62 +33,76 @@ const frames = createFrames({
 const reverseString = (str:any) => str?.split("").reverse().join("") || "";
 
 const handleRequest = frames(async (ctx) => {
+  const searchValue = ctx.message?.inputText ? ctx.message?.inputText : "";
 
-  const displayName = ctx.message?.requesterUserData?.username|| "";
-  const reversedName = reverseString(displayName);
+  const multiplier = findMultiplierByUsername(searchValue);
+  const supergraf = findSuperByUsername(searchValue);
 
   return {
-
-    image: <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: "100vh", // Tüm ekranı kaplasın
-      minWidth: "100vw",
-      backgroundColor: "#eed7a1", // Ana çerçevenin arka plan rengi
-
-    }}> { ctx.message ? (
+    image: (
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          fontFamily: "'Fira Code', monospace",
-          gap: "5px"
+          justifyContent: "center",
+          minHeight: "100vh", // Tüm ekranı kaplasın
+          minWidth: "100vw",
+          backgroundColor: "#c2bcff", // Ana çerçevenin arka plan rengi
         }}
       >
-        {/* GM, {ctx.message.requesterUserData?.displayName}! Your FID is{" "}
-        {ctx.message.requesterFid}
-        {", "}
-        {ctx.message.requesterFid < 20_000
-          ? "you're OG!"
-          : "welcome to the Farcaster!"} */}
-       <img style={{height: "200px", width: "200px"}} src={ctx.message?.requesterUserData?.profileImage} alt="farcasterImage" />
-          GM GM GM <br/> Let's keep Phavering! <br/> {reversedName}
-       
+        {ctx.message ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              fontFamily: "'Fira Code', monospace",
+              gap: "10px",
+            }}
+          >
+            {!(multiplier || supergraf) ? (
+              "Unfortunately, you did not earn any bonuses."
+            ) : (
+              <div style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                fontFamily: "'Fira Code', monospace",
+                gap: "10px",
+              }}>
+                Hey {ctx.message?.inputText || "User"}, here is the bonus amount
+                you earn:
+                <br />
+                Cyber = {multiplier ? multiplier + " MULTIPLIER" : "NOT ELIGIBLE"} 
+                <br />
+                SuperGraph = {supergraf || 0} $SOCIAL
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            The amount of bonus you earn for Phaver Season 1
+          </div>
+        )}
       </div>
-    ) : (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "10px"
-        }}
-      >
-        Hey, I'm bilalayvazoglu <br/>This is the first simple frame I coded!
-      </div>
-    )}</div> ,
+    ),
+    textInput: "Enter phaver username",
     buttons: !ctx.url.searchParams.has("clicked")
       ? [
-          <Button action="post" target={{ query: { clicked: true } }}>
-            Reverse My Farcaster Name
+          <Button action="post" target={{ pathname: "/", query: { op: "+" } }}>
+            Check Bonus Social!
           </Button>,
         ]
       : [],
   };
-    
 });
 
 export const GET = handleRequest;
