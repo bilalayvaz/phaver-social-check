@@ -129,7 +129,7 @@ const handleRequest = frames(async (ctx) => {
         )}
       </div>
     ),
-    textInput: "Enter a wallet adress!",
+    textInput: "Enter a wallet address!",
     buttons: !ctx.url.searchParams.has("clicked")
       ? [
           <Button action="post" target={{ pathname: "/", query: { op: "+" } }}>
